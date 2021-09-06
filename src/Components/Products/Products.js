@@ -3,11 +3,48 @@ import AppContext from '../../AppContext';
 import axios from 'axios';
 import envVars from '../../envVars';
 import { useHistory } from 'react-router-dom';
+import Qs from 'qs';
 
-const Products = () => {
+// Format nested params correctly for axios requests.
+axios.interceptors.request.use((config) => {
+	config.paramsSerializer = (params) => {
+		// Qs is not included in the Axios package
+		return Qs.stringify(params, {
+			arrayFormat: 'brackets',
+			encode: false,
+		});
+	};
+
+	return config;
+});
+
+const Products = (query) => {
 	//Define context
+	console.log(
+		query.query.target ? query.query.target.name.value : false
+	);
+	let filter = {};
+	if (query.query.target) {
+		const queryFields = query.query.target;
+		filter = {
+			name: queryFields.name.value || /m*/,
+			category: queryFields.category.value || /m*/,
+			price: {
+				$lte: queryFields.maxPrice.value || 9999999,
+				$gte: queryFields.minPrice.value || 0,
+			},
+			stock: {
+				$lte: queryFields.maxStock.value || 9999999,
+				$gte: queryFields.minStock.value || 0,
+			},
+			sort: queryFields.orderBy
+				? JSON.parse(queryFields.orderBy.value)
+				: '',
+		};
+		console.log(filter.sort);
+	}
 	const userSettings = useContext(AppContext);
-	console.log(userSettings);
+	//console.log(userSettings);
 	//Declaring hooks and states
 	const history = useHistory();
 	const [products, setProducts] = useState({ products: [] });
@@ -17,14 +54,18 @@ const Products = () => {
 	//Hook to fetch the data from the backend
 	useEffect(() => {
 		const fetchData = async () => {
+			console.log('hola');
 			const result = await axios({
 				url: `${envVars.apiHost}/productos`,
 				headers: { user: userSettings.userId },
+				params: {
+					...filter,
+				},
 			});
 			setProducts(result.data.data);
 		};
 		fetchData();
-	}, [isAdding, isDeleting, error]);
+	}, [isAdding, isDeleting, error, query]);
 	//Adding a product to the cart with Hook
 	const addToCart = async (e, productId) => {
 		//Not to send if is already sending
@@ -33,10 +74,11 @@ const Products = () => {
 		setAdding(true);
 		//Make the request to the backend
 		try {
+			console.log(userSettings.userId);
 			const result = await axios({
-				method: 'POST',
-				url: `${envVars.apiHost}/carritos/${userSettings.userId}`,
-				data: { productId },
+				method: 'PUT',
+				url: `${envVars.apiHost}/carritos/${userSettings.userId}/producto/${productId}`,
+
 				headers: { user: userSettings.userId },
 			});
 		} catch (err) {
@@ -78,7 +120,7 @@ const Products = () => {
 							display: 'inline-block',
 							margin: '2%',
 						}}
-						key={product.id}
+						key={product._id}
 					>
 						<div className='card-header'>{product.name}</div>
 						<div className='card-body'>
@@ -99,7 +141,7 @@ const Products = () => {
 						<button
 							className='btn btn-lg btn-primary d-block w-100'
 							type='button'
-							onClick={(e) => addToCart(e, product.id)}
+							onClick={(e) => addToCart(e, product._id)}
 						>
 							Add to Cart
 							<img
@@ -110,11 +152,11 @@ const Products = () => {
 						</button>
 						{userSettings.userId === 'admin' ? (
 							<div>
-								<a href={'/edit-product/' + product.id}>
+								<a href={'/edit-product/' + product._id}>
 									<button
 										type='button'
 										onClick={(e) =>
-											editProduct(e, product.id)
+											editProduct(e, product._id)
 										}
 										className='btn btn-info'
 									>
@@ -124,7 +166,7 @@ const Products = () => {
 								<button
 									type='button'
 									onClick={(e) =>
-										deleteProduct(e, product.id)
+										deleteProduct(e, product._id)
 									}
 									className='btn btn-danger'
 								>

@@ -1,6 +1,7 @@
 import './App.css';
 import Products from './Components/Products/Products';
 import Navbar from './Components/Navbar/Navbar';
+import FilterProduct from './Components/Products/FilterProducts';
 import Cart from './Components/Cart/Cart';
 import EditProduct from './Components/Products/EditProduct';
 import { BrowserRouter, Route, Switch, Link } from 'react-router-dom';
@@ -82,7 +83,7 @@ function App() {
 							<EditProduct />;
 						</Route>
 						<Route path='/'>
-							<Products />
+							<FilterProduct />
 						</Route>
 					</Switch>
 				</BrowserRouter>

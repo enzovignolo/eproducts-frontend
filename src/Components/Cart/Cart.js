@@ -16,10 +16,11 @@ const Cart = () => {
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
+				console.log('hola', cartId);
 				const result = await axios(
 					`${envVars.apiHost}/carritos/${cartId}`
 				);
-				console.log(result);
+				console.log('resultado', result);
 				updateCart(result.data.data.products);
 			} catch (err) {
 				updateCart({
@@ -46,7 +47,7 @@ const Cart = () => {
 				return (
 					<div
 						className='alert alert-dismissible alert-secondary d-flex'
-						key={product.id}
+						key={product._id}
 					>
 						<div className='col-3'>
 							<img
@@ -69,7 +70,7 @@ const Cart = () => {
 							<button
 								type='button'
 								onClick={() =>
-									handleDeleteProduct(product.id)
+									handleDeleteProduct(product._id)
 								}
 								className='btn btn-danger'
 							>
