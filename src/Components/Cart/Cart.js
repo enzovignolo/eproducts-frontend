@@ -43,11 +43,11 @@ const Cart = () => {
   if (cartProducts) {
     if (cartProducts.length > 0) {
       userSettings.setCart(cartProducts);
-      return cartProducts.map((product) => {
+      return cartProducts.map((product, idx) => {
         return (
           <div
             className="alert alert-dismissible alert-secondary d-flex"
-            key={product._id}
+            key={product._id + idx}
           >
             <div className="col-3">
               <img

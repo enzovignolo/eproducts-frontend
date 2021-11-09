@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useHistory } from 'react-router';
+import envVars from '../../envVars';
 
 const { React, useContext } = require('react');
 const { default: AppContext } = require('../../AppContext');
@@ -8,7 +9,7 @@ const LoginForm = () => {
   const handleSubmit = async (e) => {
     try {
       e.preventDefault();
-      const response = await axios.post('https://localhost:5000/api/v1/login', {
+      const response = await axios.post(`${envVars.apiHost}/login`, {
         username: e.target.email.value,
         password: e.target.password.value,
       });

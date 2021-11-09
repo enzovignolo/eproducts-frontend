@@ -3,26 +3,24 @@ import axios from 'axios';
 import { useHistory } from 'react-router';
 import { useContext } from 'react/cjs/react.development';
 import AppContext from '../../AppContext';
+import envVars from '../../envVars';
 
 const SignUpForm = () => {
   const handleSubmit = async (e) => {
     try {
       e.preventDefault();
       console.log(e.target);
-      const response = await axios.post(
-        'https://localhost:5000/api/v1/signup',
-        {
-          username: e.target.username.value,
-          password: e.target.password.value,
-          name: e.target.name.value,
-          lastName: e.target.lastName.value,
-          email: e.target.username.value,
-          alias: e.target.alias.value,
-          age: e.target.age.value,
+      const response = await axios.post(`${envVars.apiHost}/signup`, {
+        username: e.target.username.value,
+        password: e.target.password.value,
+        name: e.target.name.value,
+        lastName: e.target.lastName.value,
+        email: e.target.username.value,
+        alias: e.target.alias.value,
+        age: e.target.age.value,
 
-          passwordConfirmation: e.target.passwordConfirmation.value,
-        }
-      );
+        passwordConfirmation: e.target.passwordConfirmation.value,
+      });
       const user = response.data.user;
 
       userSettings.setUserId(user._id);
